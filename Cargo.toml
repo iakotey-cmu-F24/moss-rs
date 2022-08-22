@@ -1,10 +1,22 @@
 [package]
-name = "moss-rs"
+name = "moss_rs"
 version = "0.1.0"
 edition = "2021"
+
+[lib]
+name = "libmoss"
+path = "src/lib.rs"
+
+[[bin]]
+name = "moss"
+path = "src/cli/cli.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-shellexpand = "2.1.0"
-glob = "0.3.0"
+shellexpand = "^2.1.0"
+glob = "^0.3.0"
+extend = "^1.1.2"
+strum = "^0.24.1"
+strum_macros = "0.24.1"
+getset-scoped = "0.1.2"
