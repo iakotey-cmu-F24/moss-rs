@@ -36,8 +36,10 @@ pub struct MossConfig<S: ToSocketAddrs> {
 impl<S: ToSocketAddrs + Default> MossConfig<S> {
     pub fn new<U: ToString>(user_id: U, server_address: S) -> Self {
         let mut moss_config = Self::default();
-        moss_config.set_user_id(user_id.to_string());
-        moss_config.set_server_address(server_address);
+        moss_config.set_user_id(user_id.to_string())
+            .set_server_address(server_address)
+            .set_max_ignore_threshold(10)
+            .set_max_matches_displayed(250);
         moss_config
     }
 
