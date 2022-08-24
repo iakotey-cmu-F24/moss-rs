@@ -106,19 +106,20 @@ impl<S: ToSocketAddrs + Default> MossClient<S> {
     fn _upload_base_files(&mut self) {
         // FIXME: Use of collect here to release mutable borrow
         // increases memory footprint. Use interiour mutability for server instead
-        for file in self.config.base_files().collect::<Vec<_>>() {
+        for file in self.config.base_files().cloned().collect::<Vec<_>>() {
             self._send_file(file, 0)
         }
     }
 
     fn _upload_submission_files(&mut self) {
-        for (index, file) in self
+        for (file, index) in self
             .config
             .submission_files()
-            .enumerate()
+            .cloned()
+            .zip(1..)
             .collect::<Vec<_>>()
         {
-            self._send_file(file, index + 1)
+            self._send_file(file, index as usize)
         }
     }
 
