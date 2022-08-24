@@ -12,10 +12,6 @@ path = "src/lib.rs"
 name = "moss"
 path = "src/cli/cli.rs"
 
-[[bin]]
-name = "moss_play"
-path = "src/playground.rs"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
