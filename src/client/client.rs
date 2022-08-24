@@ -97,7 +97,7 @@ impl<S: ToSocketAddrs + Default> MossClient<S> {
 
         let header_response = self.server._read_string_512();
 
-        if header_response.trim().eq_ignore_ascii_case("no") {
+        if !header_response.trim().eq_ignore_ascii_case("yes") {
             println!("Unsupported language: {}", self.config.language());
             exit(1);
         }
