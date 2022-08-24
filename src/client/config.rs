@@ -23,13 +23,9 @@ pub struct MossConfig<S: ToSocketAddrs> {
 
     #[getset(skip)]
     _base_files: Vec<PathBuf>,
-    #[getset(skip)]
-    _base_globs: Vec<String>,
 
     #[getset(skip)]
     _submission_files: Vec<PathBuf>,
-    #[getset(skip)]
-    _submission_globs: Vec<String>,
 }
 
 impl<S: ToSocketAddrs> MossConfig<S> {
@@ -41,9 +37,7 @@ impl<S: ToSocketAddrs> MossConfig<S> {
             max_matches_displayed: 250,
             max_ignore_threshold: 10,
             _base_files: Default::default(),
-            _base_globs: Default::default(),
             _submission_files: Default::default(),
-            _submission_globs: Default::default(),
             comment: Default::default(),
             language: Default::default(),
             use_directory_mode: Default::default(),
@@ -98,11 +92,11 @@ impl<S: ToSocketAddrs> MossConfig<S> {
         self
     }
 
-    pub fn base_files(&self) -> impl Iterator<Item = PathBuf> + '_ {
-        self._base_files.iter().cloned()
+    pub fn base_files(&self) -> impl Iterator<Item = &PathBuf> + '_ {
+        self._base_files.iter()
     }
 
-    pub fn submission_files<'a>(&'a self) -> impl Iterator<Item = PathBuf> + 'a {
-        self._submission_files.iter().cloned()
+    pub fn submission_files<'a>(&'a self) -> impl Iterator<Item = &PathBuf> + 'a {
+        self._submission_files.iter()
     }
 }
