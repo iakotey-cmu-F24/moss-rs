@@ -20,7 +20,9 @@ impl<S: ToSocketAddrs + Default> MossClient<S> {
     pub fn new<U: ToString>(server: S, user_id: U) -> io::Result<Self> {
         MossConfig::new(user_id.to_string(), server).try_into()
     }
+}
 
+impl<S: ToSocketAddrs> MossClient<S> {
     pub fn send(mut self) -> String {
         self._send_headers();
         self._upload_base_files();
@@ -30,20 +32,12 @@ impl<S: ToSocketAddrs + Default> MossClient<S> {
         self.server._read_string_512()
     }
 
-    pub fn add_base_files<P: AsRef<str> + ToString>(&mut self, path: P, glob: bool) {
-        if glob {
-            self.config.add_base_file_by_glob(&path);
-        } else {
-            self.config.add_base_file(&path);
-        }
+    pub fn add_base_file<P: AsRef<str> + ToString>(&mut self, path: P) {
+        self.config.add_base_file(&path);
     }
 
-    pub fn add_files<P: AsRef<str> + ToString>(&mut self, path: P, glob: bool) {
-        if glob {
-            self.config.add_file_by_glob(&path);
-        } else {
-            self.config.add_file(&path);
-        }
+    pub fn add_file<P: AsRef<str> + ToString>(&mut self, path: P) {
+        self.config.add_file(&path);
     }
 
     fn _send_file<P: AsRef<Path>>(&mut self, file_name: P, file_index: usize) {
