@@ -1,5 +1,6 @@
 [package]
 name = "moss_rs"
+authors = ["Ian Akotey"]
 version = "0.1.0"
 edition = "2021"
 
@@ -11,6 +12,10 @@ path = "src/lib.rs"
 name = "moss"
 path = "src/cli/cli.rs"
 
+[[bin]]
+name = "moss_play"
+path = "src/playground.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -20,4 +25,5 @@ extend = "^1.1.2"
 strum = "^0.24.1"
 strum_macros = "0.24.1"
 getset-scoped = "0.1.2"
-clap = "^3.2.17"
+clap = { version = "^3.2.17", features = ["derive"] }
+wild = "2.1.0"
