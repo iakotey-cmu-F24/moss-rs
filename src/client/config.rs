@@ -1,14 +1,14 @@
-use std::{net::ToSocketAddrs, path::PathBuf, str::FromStr, io};
+use std::{net::ToSocketAddrs, path::PathBuf, str::FromStr};
 
 use getset_scoped::{Getters, Setters};
 
 use crate::prelude::MossLanguage;
 
 #[derive(Debug, Default, Getters, Setters)]
-#[getset(get = "pub(crate)", set = "pub(crate)")]
+#[getset(get = "pub", set = "pub")]
 #[allow(dead_code)] // TODO: Remove
 pub struct MossConfig<S: ToSocketAddrs> {
-    #[getset(get = "pub(crate)")]
+    #[getset(get = "pub")]
     server_address: S,
 
     user_id: String,
@@ -33,14 +33,23 @@ pub struct MossConfig<S: ToSocketAddrs> {
 }
 
 
-impl<S: ToSocketAddrs + Default> MossConfig<S> {
+impl<S: ToSocketAddrs> MossConfig<S> {
     pub fn new<U: ToString>(user_id: U, server_address: S) -> Self {
-        let mut moss_config = Self::default();
-        moss_config.set_user_id(user_id.to_string())
-            .set_server_address(server_address)
-            .set_max_ignore_threshold(10)
-            .set_max_matches_displayed(250);
-        moss_config
+        MossConfig {
+            server_address,
+            user_id: user_id.to_string(),
+            use_experimental_mode: Default::default(),
+            max_matches_displayed: 250,
+            max_ignore_threshold: 10,
+            _base_files: Default::default(),
+            _base_globs: Default::default(),
+            _submission_files: Default::default(),
+            _submission_globs: Default::default(),
+            comment: Default::default(),
+            language: Default::default(),
+            use_directory_mode: Default::default(),
+        }
+
     }
 
     pub fn add_base_file<P: AsRef<str> + ToString>(&mut self, path: &P) -> &mut Self {
@@ -88,7 +97,7 @@ impl<S: ToSocketAddrs + Default> MossConfig<S> {
         std::iter::empty()
     }
 
-    pub(crate) fn submission_files<'a>(&'a self) -> impl Iterator<Item = PathBuf> + 'a {
+    pub fn submission_files<'a>(&'a self) -> impl Iterator<Item = PathBuf> + 'a {
         self._submission_globs
             .iter()
             .map(|glob| shellexpand::full(glob))
