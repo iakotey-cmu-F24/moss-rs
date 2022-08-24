@@ -12,8 +12,6 @@ fn main() {
 
     let moss_client: MossClient<(&str, u16)> = moss_config.try_into().unwrap();
 
-    println!("{:#?}", moss_client);
-
     let moss_response = moss_client.send();
 
     println!("{}", moss_response);
