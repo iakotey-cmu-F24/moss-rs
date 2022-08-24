@@ -32,7 +32,6 @@ pub struct MossConfig<S: ToSocketAddrs> {
     _submission_globs: Vec<String>,
 }
 
-
 impl<S: ToSocketAddrs> MossConfig<S> {
     pub fn new<U: ToString>(user_id: U, server_address: S) -> Self {
         MossConfig {
@@ -49,68 +48,61 @@ impl<S: ToSocketAddrs> MossConfig<S> {
             language: Default::default(),
             use_directory_mode: Default::default(),
         }
-
     }
 
     pub fn add_base_file<P: AsRef<str> + ToString>(&mut self, path: &P) -> &mut Self {
-        let p = PathBuf::from_str(path.as_ref()).unwrap();
-        if p.exists() {
-            self._base_files.push(p);
+        if let Ok(p) = PathBuf::from_str(path.as_ref()) {
+            // infallible operation.
+            if p.exists() {
+                self._base_files.push(p);
+            } else {
+                let full_path: String =
+                    shellexpand::full(path).map_or(path.to_string(), |x| x.into_owned()); // failure cause: unable to expand path
+                let matches = glob::glob(&full_path).unwrap(); // Failure cause: pattern error
+                matches
+                    .inspect(|x| ()) // log inaccessible paths here
+                    .filter_map(Result::ok)
+                    .for_each(|p| self._base_files.push(p));
+            }
         }
+
         self
     }
 
     pub fn add_file<P: AsRef<str> + ToString>(&mut self, path: &P) -> &mut Self {
-        let p = PathBuf::from_str(path.as_ref()).unwrap();
-        if p.exists() {
-            self._submission_files.push(p);
+        if let Ok(p) = PathBuf::from_str(path.as_ref()) {
+            // infallible operation.
+            if p.exists() {
+                self._submission_files.push(p);
+            } else {
+                let full_path: String =
+                    shellexpand::full(path).map_or(path.to_string(), |x| x.into_owned()); // failure cause: unable to expand path
+                let matches = glob::glob(&full_path).unwrap(); // Failure cause: pattern error
+                matches
+                    .inspect(|x| ()) // log inaccessible paths here
+                    .filter_map(Result::ok)
+                    .for_each(|p| self._submission_files.push(p));
+            }
         }
+
         self
     }
 
     pub fn add_base_file_by_glob<P: ToString>(&mut self, glob: &P) -> &mut Self {
-        self._base_globs.push(glob.to_string());
+        self.add_base_file(&glob.to_string());
         self
     }
 
     pub fn add_file_by_glob<P: ToString>(&mut self, glob: &P) -> &mut Self {
-        self._submission_globs.push(glob.to_string());
+        self.add_file(&glob.to_string());
         self
     }
 
     pub fn base_files(&self) -> impl Iterator<Item = PathBuf> + '_ {
-        // self._base_globs
-        //     .iter()
-        //     .map(|glob| shellexpand::full(glob))
-        //     .inspect(|x| ()) // log invalid globs here
-        //     .flatten() // remove previously logged invalid globs
-        //     .map(|pattern| glob::glob(pattern.as_ref()))
-        //     .inspect(|x| ()) // log invalid patterns here
-        //     .flatten() // remove previously logged invalid patterns
-        //     .flatten() // merge the iterators for each glob into one iterator
-        //     .inspect(|x| ()) // log inaccessible paths here
-        //     .flatten() // remove previously logged inaccessible paths
-        //     // return an iterator over the files by copying from the original vector on-demand
-        //     // chain this iterator to the globs created above
-        //     .chain(self._base_files.iter().cloned())
-
-        std::iter::empty()
+        self._base_files.iter().cloned()
     }
 
     pub fn submission_files<'a>(&'a self) -> impl Iterator<Item = PathBuf> + 'a {
-        self._submission_globs
-            .iter()
-            .map(|glob| shellexpand::full(glob))
-            .inspect(|x| ()) // log invalid globs here
-            .flatten() // remove previously logged invalid globs
-            .map(|pattern| glob::glob(pattern.as_ref()))
-            .inspect(|x| ()) // log invalid patterns here
-            .flatten() // remove previously logged invalid patterns
-            .flatten() // merge the iterators for each glob into one big iterator
-            .inspect(|x| ()) // log inaccessible paths here
-            .flatten() // remove previously logged inaccessible paths
-            // return an iterator over the files by copying from the original vector on-demand
-            // chain this iterator to the globs created above
-            .chain(self._submission_files.iter().cloned())
+        self._submission_files.iter().cloned()
     }
 }
