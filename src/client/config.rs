@@ -82,13 +82,13 @@ impl<S: ToSocketAddrs> MossConfig<S> {
         self
     }
 
-    pub fn add_base_file_by_glob<P: ToString>(&mut self, glob: &P) -> &mut Self {
-        self.add_base_file(&glob.to_string());
+    pub fn add_path(&mut self, path: PathBuf) -> &mut Self {
+        self._submission_files.push(path);
         self
     }
 
-    pub fn add_file_by_glob<P: ToString>(&mut self, glob: &P) -> &mut Self {
-        self.add_file(&glob.to_string());
+    pub fn add_base_path(&mut self, path: PathBuf) -> &mut Self {
+        self._base_files.push(path);
         self
     }
 
