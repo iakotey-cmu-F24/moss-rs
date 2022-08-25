@@ -21,16 +21,19 @@ The current implementation is not yet on [crates.io](https://crates.io) or as bi
 ### Build steps
 
 1. clone the repository
+
 ```bash
 git clone https://github.com/ianakotey/moss-rs
 ```
 
 2. Change directory (cd) into repository directory
+
 ```bash
 cd MOSS-RS # folder name might not be uppercase
 ```
 
 3. Build moss-rs
+
 ```bash
 cargo build --release
 ```
@@ -58,7 +61,7 @@ More documentation will be provided once the library is ready to publish.
 
 ## Contributing
 
-    Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please mark it with the*feature* label
+    Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please mark it with the *feature* label
 
     For bugs, documentation, and any questions, please create an issue with the appropriate label.
 
@@ -68,6 +71,7 @@ Please make sure to update any tests as appropriate.
 
 * [Moss](https://theory.stanford.edu/~aiken/moss/)
 * Hjalti Magnussion, for [mossum](https://github.com/hjalti/mossum). Awesome projects like these inspire folks like me to make something that might help others too.
+* Banahene Osei-Owusu, for ideas, support and project management.
 
 ## License
 
