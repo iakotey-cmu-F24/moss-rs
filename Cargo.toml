@@ -23,3 +23,5 @@ strum_macros = "0.24.1"
 getset-scoped = "0.1.2"
 clap = { version = "^3.2.17", features = ["derive"] }
 wild = "2.1.0"
+snafu = "0.7.1"
+regex = "1.6.0"
