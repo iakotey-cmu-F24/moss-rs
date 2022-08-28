@@ -44,20 +44,14 @@ impl<S: ToSocketAddrs> MossConfig<S> {
         }
     }
 
-    pub fn add_base_file<P: AsRef<str>>(
-        &mut self,
-        path: &P,
-    ) -> Result<&mut Self, Whatever> {
+    pub fn add_base_file<P: AsRef<str>>(&mut self, path: &P) -> Result<&mut Self, Whatever> {
         Self::_add_file_to_vec(path, &mut self._base_files).map(|_| self)
     }
 
     pub fn add_file<P: AsRef<str>>(&mut self, path: &P) -> Result<&mut Self, Whatever> {
         Self::_add_file_to_vec(path, &mut self._submission_files).map(|_| self)
     }
-    pub fn _add_file_to_vec<P: AsRef<str> >(
-        path: &P,
-        vec: &mut Vec<PathBuf>,
-    ) -> Result<(), Whatever> {
+    fn _add_file_to_vec<P: AsRef<str>>(path: &P, vec: &mut Vec<PathBuf>) -> Result<(), Whatever> {
         let p = match PathBuf::from_str(path.as_ref()) {
             Ok(it) => it,
             _ => unreachable!(), // <PathBuf as FromStr>::Err = Infallible
@@ -96,22 +90,19 @@ impl<S: ToSocketAddrs> MossConfig<S> {
         }
     }
 
-    pub fn add_path(&mut self, path: PathBuf) -> Result<&mut Self, Whatever> {
+    fn _add_path_to_vec(path: PathBuf, vec: &mut Vec<PathBuf>) -> Result<(), Whatever> {
         path.exists()
             .then(|| {
-                self._submission_files.push(path.clone());
-                self
+                vec.push(path.clone());
             })
             .with_whatever_context(|| format!("Path does not exist: {:?}", path))
     }
+    pub fn add_path(&mut self, path: PathBuf) -> Result<&mut Self, Whatever> {
+        Self::_add_path_to_vec(path, &mut self._submission_files).map(|_| self)
+    }
 
     pub fn add_base_path(&mut self, path: PathBuf) -> Result<&mut Self, Whatever> {
-        path.exists()
-            .then(|| {
-                self._base_files.push(path.clone());
-                self
-            })
-            .with_whatever_context(|| format!("Path does not exist: {:?}", path))
+        Self::_add_path_to_vec(path, &mut self._base_files).map(|_| self)
     }
 
     pub fn base_files(&self) -> impl Iterator<Item = &PathBuf> + '_ {
