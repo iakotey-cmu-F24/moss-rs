@@ -44,17 +44,17 @@ impl<S: ToSocketAddrs> MossConfig<S> {
         }
     }
 
-    pub fn add_base_file<P: AsRef<str> + ToString>(
+    pub fn add_base_file<P: AsRef<str>>(
         &mut self,
         path: &P,
     ) -> Result<&mut Self, Whatever> {
         Self::_add_file_to_vec(path, &mut self._base_files).map(|_| self)
     }
 
-    pub fn add_file<P: AsRef<str> + ToString>(&mut self, path: &P) -> Result<&mut Self, Whatever> {
+    pub fn add_file<P: AsRef<str>>(&mut self, path: &P) -> Result<&mut Self, Whatever> {
         Self::_add_file_to_vec(path, &mut self._submission_files).map(|_| self)
     }
-    pub fn _add_file_to_vec<P: AsRef<str> + ToString>(
+    pub fn _add_file_to_vec<P: AsRef<str> >(
         path: &P,
         vec: &mut Vec<PathBuf>,
     ) -> Result<(), Whatever> {
