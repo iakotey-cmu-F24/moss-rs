@@ -61,9 +61,9 @@ More documentation will be provided once the library is ready to publish.
 
 ## Contributing
 
-    Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please mark it with the *feature* label
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please mark it with the *feature* label
 
-    For bugs, documentation, and any questions, please create an issue with the appropriate label.
+For bugs, documentation, and any questions, please create an issue with the appropriate label.
 
 Please make sure to update any tests as appropriate.
 
