@@ -1,12 +1,12 @@
 use std::{net::ToSocketAddrs, path::PathBuf, str::FromStr};
 
 use getset_scoped::{Getters, Setters};
+use snafu::{prelude::*, Whatever};
 
 use crate::prelude::MossLanguage;
 
 #[derive(Debug, Default, Getters, Setters)]
 #[getset(get = "pub", set = "pub")]
-#[allow(dead_code)] // TODO: Remove
 pub struct MossConfig<S: ToSocketAddrs> {
     #[getset(get = "pub")]
     server_address: S,
@@ -44,52 +44,74 @@ impl<S: ToSocketAddrs> MossConfig<S> {
         }
     }
 
-    pub fn add_base_file<P: AsRef<str> + ToString>(&mut self, path: &P) -> &mut Self {
-        if let Ok(p) = PathBuf::from_str(path.as_ref()) {
-            // infallible operation.
-            if p.exists() {
-                self._base_files.push(p);
-            } else {
-                let full_path: String =
-                    shellexpand::full(path).map_or(path.to_string(), |x| x.into_owned()); // failure cause: unable to expand path
-                let matches = glob::glob(&full_path).unwrap(); // Failure cause: pattern error
-                matches
-                    .inspect(|x| ()) // log inaccessible paths here
-                    .filter_map(Result::ok)
-                    .for_each(|p| self._base_files.push(p));
-            }
+    pub fn add_base_file<P: AsRef<str> + ToString>(
+        &mut self,
+        path: &P,
+    ) -> Result<&mut Self, Whatever> {
+        Self::_add_file_to_vec(path, &mut self._base_files).map(|_| self)
+    }
+
+    pub fn add_file<P: AsRef<str> + ToString>(&mut self, path: &P) -> Result<&mut Self, Whatever> {
+        Self::_add_file_to_vec(path, &mut self._submission_files).map(|_| self)
+    }
+    pub fn _add_file_to_vec<P: AsRef<str> + ToString>(
+        path: &P,
+        vec: &mut Vec<PathBuf>,
+    ) -> Result<(), Whatever> {
+        let p = match PathBuf::from_str(path.as_ref()) {
+            Ok(it) => it,
+            _ => unreachable!(), // <PathBuf as FromStr>::Err = Infallible
+        };
+
+        if p.exists() {
+            vec.push(p);
+            Ok(())
+        } else {
+            // Assume the path is a glob, and try to expand it
+            let full_path = shellexpand::full(path).with_whatever_context(|err| {
+                format!("Unable to expand variable in path: {}", err.var_name)
+            })?;
+            let matches = glob::glob(&full_path)
+                .with_whatever_context(|err| format!("Invalid glob pattern passed: {}", err.msg))?;
+
+            let mut unreadable_paths = Vec::new();
+
+            matches
+                .filter_map(|x| match x {
+                    // filter out unreachable paths,
+                    // but keep them for error reporting
+                    Ok(path) => Some(path),
+                    Err(err) => {
+                        unreadable_paths.push(err);
+                        None
+                    }
+                })
+                .for_each(|p| vec.push(p));
+
+            // return custom type with all unreadable paths
+            unreadable_paths
+                .is_empty()
+                .then_some(())
+                .whatever_context("Some paths were invalid")
         }
-
-        self
     }
 
-    pub fn add_file<P: AsRef<str> + ToString>(&mut self, path: &P) -> &mut Self {
-        if let Ok(p) = PathBuf::from_str(path.as_ref()) {
-            // infallible operation.
-            if p.exists() {
-                self._submission_files.push(p);
-            } else {
-                let full_path: String =
-                    shellexpand::full(path).map_or(path.to_string(), |x| x.into_owned()); // failure cause: unable to expand path
-                let matches = glob::glob(&full_path).unwrap(); // Failure cause: pattern error
-                matches
-                    .inspect(|x| ()) // log inaccessible paths here
-                    .filter_map(Result::ok)
-                    .for_each(|p| self._submission_files.push(p));
-            }
-        }
-
-        self
+    pub fn add_path(&mut self, path: PathBuf) -> Result<&mut Self, Whatever> {
+        path.exists()
+            .then(|| {
+                self._submission_files.push(path.clone());
+                self
+            })
+            .with_whatever_context(|| format!("Path does not exist: {:?}", path))
     }
 
-    pub fn add_path(&mut self, path: PathBuf) -> &mut Self {
-        self._submission_files.push(path);
-        self
-    }
-
-    pub fn add_base_path(&mut self, path: PathBuf) -> &mut Self {
-        self._base_files.push(path);
-        self
+    pub fn add_base_path(&mut self, path: PathBuf) -> Result<&mut Self, Whatever> {
+        path.exists()
+            .then(|| {
+                self._base_files.push(path.clone());
+                self
+            })
+            .with_whatever_context(|| format!("Path does not exist: {:?}", path))
     }
 
     pub fn base_files(&self) -> impl Iterator<Item = &PathBuf> + '_ {
