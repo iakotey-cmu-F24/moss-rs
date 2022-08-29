@@ -105,7 +105,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
             self.server
                 .write(
                     format!(
-                        "file {} python {} {}\n",
+                        "file {} {} {} {}\n",
                         file_index,
                         self.config.language(),
                         file_buffer.len(),
