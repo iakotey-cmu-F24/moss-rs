@@ -36,12 +36,12 @@ impl<S: ToSocketAddrs> MossClient<S> {
             .whatever_context("Unable to read Url from server")
     }
 
-    pub fn add_base_file<P: AsRef<str> + ToString>(&mut self, path: P) {
-        self.config.add_base_file(&path);
+    pub fn add_base_file<P: AsRef<str>>(&mut self, path: P) -> Result<(), Whatever> {
+        self.config.add_base_file(&path).map(|_| ())
     }
 
-    pub fn add_file<P: AsRef<str> + ToString>(&mut self, path: P) {
-        self.config.add_file(&path);
+    pub fn add_file<P: AsRef<str>>(&mut self, path: P) -> Result<(), Whatever> {
+        self.config.add_file(&path).map(|_| ())
     }
 
     fn _send_file<P: AsRef<Path>>(
@@ -167,7 +167,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
         let header_response = self
             .server
             ._read_string_512()
-            .whatever_context("Unable to recieve server's header response")?;
+            .whatever_context("Unable to receive server's header response")?;
 
         if !header_response.trim().eq_ignore_ascii_case("yes") {
             println!("Unsupported language: {}", self.config.language());

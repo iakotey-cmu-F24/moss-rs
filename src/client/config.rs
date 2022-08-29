@@ -44,12 +44,12 @@ impl<S: ToSocketAddrs> MossConfig<S> {
         }
     }
 
-    pub fn add_base_file<P: AsRef<str>>(&mut self, path: &P) -> Result<&mut Self, Whatever> {
-        Self::_add_file_to_vec(path, &mut self._base_files).map(|_| self)
+    pub fn add_base_file<P: AsRef<str>>(&mut self, path: &P) -> Result<(), Whatever> {
+        Self::_add_file_to_vec(path, &mut self._base_files)
     }
 
-    pub fn add_file<P: AsRef<str>>(&mut self, path: &P) -> Result<&mut Self, Whatever> {
-        Self::_add_file_to_vec(path, &mut self._submission_files).map(|_| self)
+    pub fn add_file<P: AsRef<str>>(&mut self, path: &P) -> Result<(), Whatever> {
+        Self::_add_file_to_vec(path, &mut self._submission_files)
     }
     fn _add_file_to_vec<P: AsRef<str>>(path: &P, vec: &mut Vec<PathBuf>) -> Result<(), Whatever> {
         let p = match PathBuf::from_str(path.as_ref()) {
@@ -97,12 +97,12 @@ impl<S: ToSocketAddrs> MossConfig<S> {
             })
             .with_whatever_context(|| format!("Path does not exist: {:?}", path))
     }
-    pub fn add_path(&mut self, path: PathBuf) -> Result<&mut Self, Whatever> {
-        Self::_add_path_to_vec(path, &mut self._submission_files).map(|_| self)
+    pub fn add_path(&mut self, path: PathBuf) -> Result<(), Whatever> {
+        Self::_add_path_to_vec(path, &mut self._submission_files)
     }
 
-    pub fn add_base_path(&mut self, path: PathBuf) -> Result<&mut Self, Whatever> {
-        Self::_add_path_to_vec(path, &mut self._base_files).map(|_| self)
+    pub fn add_base_path(&mut self, path: PathBuf) -> Result<(), Whatever> {
+        Self::_add_path_to_vec(path, &mut self._base_files)
     }
 
     pub fn base_files(&self) -> impl Iterator<Item = &PathBuf> + '_ {
