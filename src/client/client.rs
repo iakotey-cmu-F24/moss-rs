@@ -58,10 +58,12 @@ impl<S: ToSocketAddrs> MossClient<S> {
                 .read_to_end(&mut file_buffer)
                 .whatever_context("Could not read data from file")?;
 
-            let file_name = file
-                .as_ref()
-                .file_name()
-                .map_or(None, |os_str| os_str.to_str())
+            //TODO to be replaced once path::absolute is stabilized
+            let canonicallized_path = file.as_ref().canonicalize().with_whatever_context(|_| {
+                format!("File does not exist: {}", file.as_ref().to_string_lossy())
+            })?;
+            let file_path = canonicallized_path
+                .to_str()
                 .whatever_context("Invalid / Non UTF-8 file name")?;
 
 
