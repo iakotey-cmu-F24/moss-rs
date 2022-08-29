@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     fs::File,
     io::{self, BufReader, Read, Write},
     net::{TcpStream, ToSocketAddrs},
@@ -7,6 +8,7 @@ use std::{
 };
 
 use extend::ext;
+use lazy_static::lazy_static;
 use regex::Regex;
 use snafu::{prelude::*, Whatever};
 
@@ -66,6 +68,15 @@ impl<S: ToSocketAddrs> MossClient<S> {
                 .to_str()
                 .whatever_context("Invalid / Non UTF-8 file name")?;
 
+            let file_path = match std::env::consts::OS {
+                "windows" => {
+                    lazy_static! {
+                        static ref PATH_RE: Regex = Regex::new(r"^(?:\\\\\?\\)*(\w:)").unwrap();
+                    }
+                    Cow::from(PATH_RE.replace(file_path, "").replace(r"\", "/"))
+                }
+                _ => Cow::from(file_path),
+            };
 
             let display_name = match display_name {
                 Some(pattern) => {
