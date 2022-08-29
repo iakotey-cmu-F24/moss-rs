@@ -80,16 +80,27 @@ impl<S: ToSocketAddrs> MossClient<S> {
 
             let display_name = match display_name {
                 Some(pattern) => {
-                    let re = Regex::new(pattern.as_ref())
-                        .whatever_context("Invalid regex expression provided")?;
+                    let re = Regex::new(pattern.as_ref()).with_whatever_context(|_| {
+                        format!("Invalid regex expression provided: {}", pattern.as_ref())
+                    })?;
 
-                    re.captures(file_name)
-                        .and_then(|c| c.get(0).map(|f| f.as_str()))
-                        .unwrap_or(file_name)
+                    Cow::from(
+                        re.captures(&file_path)
+                            .unwrap()
+                            .iter()
+                            .skip(1)
+                            .flatten()
+                            .map(|c| c.as_str())
+                            // TODO replace with intersperse when it's stablized
+                            .fold(String::new(), |mut acc, cur| {
+                                acc.push('_');
+                                acc.push_str(cur);
+                                acc
+                            }),
+                    )
                 }
-                None => file_name,
-            }
-            .replace(" ", "_");
+                None => file_path,
+            };
 
             self.server
                 .write(
