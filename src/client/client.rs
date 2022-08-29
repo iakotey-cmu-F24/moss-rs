@@ -83,8 +83,9 @@ impl<S: ToSocketAddrs> MossClient<S> {
                     format!(
                         "file {} python {} {}\n",
                         file_index,
+                        self.config.language(),
                         file_buffer.len(),
-                        display_name
+                        display_name.replace(" ", "_")
                     )
                     .as_bytes(),
                 )
