@@ -3,7 +3,6 @@ use clap::ValueEnum;
 #[derive(Clone, Debug, Default, Display, IntoStaticStr, ValueEnum)]
 #[strum(serialize_all = "lowercase")]
 #[strum(ascii_case_insensitive)]
-#[allow(dead_code)] // TODO: Remove
 pub enum MossLanguage {
     #[default]
     C,
