@@ -35,6 +35,10 @@ pub(crate) struct MossCliArgs {
     /// Page 'title'
     #[clap(long, value_parser)]
     user_id: String,
+    
+    ///
+    #[clap(short, long, value_parser)]
+    transform: Option<String>,
 
     /// Use the current experimental server.
     #[clap(short = 'x', long = "experimental", action = ArgAction::SetTrue)]
@@ -67,23 +71,30 @@ impl<'s> Into<MossConfig<(&'s str, u16)>> for MossCliArgs {
             .set_max_matches_displayed(self.max_matches_displayed)
             .set_comment(self.comment)
             .set_language(self.language)
-            .set_use_directory_mode(self.use_directory_mode);
+            .set_use_directory_mode(self.use_directory_mode)
+            .set_transform(self.transform);
 
         if let Some(files) = self.base_files {
             files.into_iter().for_each(|file| {
                 if file.exists() {
-                    cfg.add_base_path(file);
+                    cfg.add_base_path(file).expect("Error occured on infallible operation!");
                 } else {
-                    cfg.add_base_file(&file.to_string_lossy());
+                    match cfg.add_base_file(&file.to_string_lossy()) {
+                        Ok(()) => (),
+                        _ => todo!()
+                    }
                 }
             });
         }
-
+        
         self.submission_files.into_iter().for_each(|file| {
             if file.exists() {
-                cfg.add_path(file);
+                cfg.add_path(file).expect("Error occured on infallible operation!");
             } else {
-                cfg.add_file(&file.to_string_lossy());
+                match cfg.add_file(&file.to_string_lossy()) {
+                    Ok(()) => (),
+                    _ => todo!()
+                }
             }
         });
 
