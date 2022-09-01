@@ -21,6 +21,8 @@ pub struct MossConfig<S: ToSocketAddrs> {
     max_matches_displayed: usize,
     max_ignore_threshold: usize,
 
+    transform: Option<String>,
+
     #[getset(skip)]
     _base_files: Vec<PathBuf>,
 
@@ -41,6 +43,7 @@ impl<S: ToSocketAddrs> MossConfig<S> {
             comment: Default::default(),
             language: Default::default(),
             use_directory_mode: Default::default(),
+            transform: None,
         }
     }
 

@@ -48,7 +48,6 @@ impl<S: ToSocketAddrs> MossClient<S> {
         &mut self,
         file: P,
         file_index: usize,
-        display_name: Option<&dyn AsRef<str>>,
     ) -> Result<(), Whatever> {
         if file.as_ref().exists() {
             print!("Uploaded {:?}.... ", file.as_ref());
@@ -78,10 +77,10 @@ impl<S: ToSocketAddrs> MossClient<S> {
                 _ => Cow::from(file_path),
             };
 
-            let display_name = match display_name {
+            let display_name = match self.config.transform() {
                 Some(pattern) => {
                     let re = Regex::new(pattern.as_ref()).with_whatever_context(|_| {
-                        format!("Invalid regex expression provided: {}", pattern.as_ref())
+                        format!("Invalid regex expression provided: {}", pattern)
                     })?;
 
                     Cow::from(
@@ -181,7 +180,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
         // FIXME: Use of collect here to release mutable borrow
         // increases memory footprint. Use interior mutability for server instead
         for file in self.config.base_files().cloned().collect::<Vec<_>>() {
-            self._send_file(file, 0, None)?;
+            self._send_file(file, 0)?;
         }
         Ok(())
     }
@@ -194,7 +193,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
             .zip(1..)
             .collect::<Vec<_>>()
         {
-            self._send_file(file, index as usize, None)?;
+            self._send_file(file, index as usize)?;
         }
         Ok(())
     }
