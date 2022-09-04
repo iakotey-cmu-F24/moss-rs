@@ -24,7 +24,7 @@ jobs:
         run: zip -r -9 moss_linux.zip target/release/moss
 
       - name: Release
-      - uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           draft: true
@@ -52,7 +52,7 @@ jobs:
         run: zip -r -9 moss_win.zip target/release/moss.exe
 
       - name: Release
-      - uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           draft: true
@@ -81,7 +81,7 @@ jobs:
         run: zip -r -9 moss_darwin.zip target/release/moss
 
       - name: Release
-      - uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           draft: true
