@@ -18,10 +18,7 @@ jobs:
           override: true
 
       - name: Build
-        run: cargo build --all --release && strip target/release/moss
-      
-      - name: Package
-        run: zip -r -9 moss.zip target/release/moss
+        run: cargo build --all --release && strip target/release/moss && mv target/release/moss target/release/moss_amd64
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -31,14 +28,6 @@ jobs:
             target/release/moss_amd64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Release II
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          draft: true
-          files: |
-            moss.zip
 
   build-win:
     runs-on: windows-latest
