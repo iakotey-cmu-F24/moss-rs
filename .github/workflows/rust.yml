@@ -18,7 +18,7 @@ jobs:
           override: true
 
       - name: Build
-        run: cargo build --all --release && strip target/release/moss && mv target/release/moss target/release/moss_amd64
+        run: cargo build --all --release && strip target/release/moss
 
       - name: Package
         run: zip -r -9 moss_linux.zip target/release/moss
@@ -49,7 +49,7 @@ jobs:
         run: cargo build --all --release
       
       - name: Package
-        run: zip -r -9 moss_win.zip target/release/moss.exe
+        run: Compress-Archive -LiteralPath 'target/release/moss.exe' -DestinationPath 'moss_win.zip'
 
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -75,7 +75,7 @@ jobs:
           override: true
 
       - name: Build for mac
-        run: cargo build --all --release && strip target/release/moss && mv target/release/moss target/release/moss_darwin
+        run: cargo build --all --release && strip target/release/moss
       
       - name: Package
         run: zip -r -9 moss_darwin.zip target/release/moss
