@@ -90,8 +90,6 @@ jobs:
     steps:
       - name: Download linux package
         uses: actions/download-artifact@v3
-        with:
-          path: path/to/artifacts
 
       - name: Display structure of downloaded files
         run: ls -R
