@@ -81,20 +81,22 @@ impl<S: ToSocketAddrs> MossClient<S> {
                         format!("Invalid regex expression provided: {}", pattern)
                     })?;
 
-                    Cow::from(
-                        re.captures(&file_path)
-                            .unwrap()
-                            .iter()
-                            .skip(1)
-                            .flatten()
-                            .map(|c| c.as_str())
-                            // TODO replace with intersperse when it's stablized
-                            .fold(String::new(), |mut acc, cur| {
-                                acc.push('_');
-                                acc.push_str(cur);
-                                acc
-                            }),
-                    )
+                    if let Some(val) = re.captures(&file_path) {
+                        Cow::from(
+                            val.iter()
+                                .skip(1)
+                                .flatten()
+                                .map(|c| c.as_str())
+                                // TODO replace with intersperse when it's stablized
+                                .fold(String::new(), |mut acc, cur| {
+                                    acc.push_str(cur);
+                                    acc.push('/');
+                                    acc
+                                }),
+                        )
+                    } else {
+                        file_path
+                    }
                 }
                 None => file_path,
             };
@@ -107,7 +109,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
                         file_index,
                         self.config.language(),
                         file_buffer.len(),
-                        display_name.replace(" ", "_")
+                        display_name.replace(" ", "_").trim_end_matches('/')
                     )
                     .as_bytes(),
                 )
