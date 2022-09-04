@@ -1,5 +1,6 @@
 use std::{
     borrow::Cow,
+    cell::RefCell,
     fs::File,
     io::{self, BufReader, Read, Write},
     net::{TcpStream, ToSocketAddrs},
@@ -16,7 +17,7 @@ use crate::prelude::MossConfig;
 
 #[derive(Debug)]
 pub struct MossClient<S: ToSocketAddrs> {
-    server: TcpStream,
+    server: RefCell<TcpStream>,
     config: MossConfig<S>,
 }
 
@@ -32,6 +33,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
         self._query_server()?;
 
         self.server
+            .borrow_mut()
             ._read_string_512()
             .whatever_context("Unable to read Url from server")
     }
@@ -44,7 +46,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
         self.config.add_file(&path).map(|_| ())
     }
 
-    fn _send_file<P: AsRef<Path>>(&mut self, file: P, file_index: usize) -> Result<(), Whatever> {
+    fn _send_file<P: AsRef<Path>>(&self, file: P, file_index: usize) -> Result<(), Whatever> {
         if file.as_ref().exists() {
             print!("Uploaded {:?}.... ", file.as_ref());
 
@@ -100,6 +102,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
             };
 
             self.server
+                .borrow_mut()
                 .write(
                     format!(
                         "file {} {} {} {}\n",
@@ -113,6 +116,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
                 .whatever_context("Unable to write file description")?;
 
             self.server
+                .borrow_mut()
                 .write(file_buffer.as_slice())
                 .whatever_context("Unable to write file description")?;
 
@@ -123,13 +127,15 @@ impl<S: ToSocketAddrs> MossClient<S> {
         }
     }
 
-    fn _send_headers(&mut self) -> Result<(), Whatever> {
+    fn _send_headers(&self) -> Result<(), Whatever> {
         let _ = self
             .server
+            .borrow_mut()
             .write(format!("moss {}\n", self.config.user_id()).as_bytes())
             .whatever_context("Could not authenticate with Moss")?;
         let _ = self
             .server
+            .borrow_mut()
             .write(
                 format!(
                     "directory {}\n",
@@ -140,6 +146,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
             .whatever_context("Error sending directory information to Moss server")?;
         let _ = self
             .server
+            .borrow_mut()
             .write(
                 format!(
                     "X {}\n",
@@ -150,19 +157,23 @@ impl<S: ToSocketAddrs> MossClient<S> {
             .whatever_context("Error sending experimental information to Moss server")?;
         let _ = self
             .server
+            .borrow_mut()
             .write(format!("maxmatches {}\n", self.config.max_ignore_threshold()).as_bytes())
             .whatever_context("Error sending match information to Moss server")?;
         let _ = self
             .server
+            .borrow_mut()
             .write(format!("show {}\n", self.config.max_matches_displayed()).as_bytes())
             .whatever_context("Error sending display information to Moss server")?;
         let _ = self
             .server
+            .borrow_mut()
             .write(format!("language {}\n", self.config.language()).as_bytes())
             .whatever_context("Error sending language information to Moss server")?;
 
         let header_response = self
             .server
+            .borrow_mut()
             ._read_string_512()
             .whatever_context("Unable to receive server's header response")?;
 
@@ -174,23 +185,15 @@ impl<S: ToSocketAddrs> MossClient<S> {
         Ok(())
     }
 
-    fn _upload_base_files(&mut self) -> Result<(), Whatever> {
-        // FIXME: Use of collect here to release mutable borrow
-        // increases memory footprint. Use interior mutability for server instead
-        for file in self.config.base_files().cloned().collect::<Vec<_>>() {
+    fn _upload_base_files(&self) -> Result<(), Whatever> {
+        for file in self.config.base_files() {
             self._send_file(file, 0)?;
         }
         Ok(())
     }
 
-    fn _upload_submission_files(&mut self) -> Result<(), Whatever> {
-        for (file, index) in self
-            .config
-            .submission_files()
-            .cloned()
-            .zip(1..)
-            .collect::<Vec<_>>()
-        {
+    fn _upload_submission_files(&self) -> Result<(), Whatever> {
+        for (file, index) in self.config.submission_files().zip(1..) {
             self._send_file(file, index as usize)?;
         }
         Ok(())
@@ -199,6 +202,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
     fn _query_server(&mut self) -> Result<(), Whatever> {
         // FIXME: Probable problem area. Might need to manually add quotes
         self.server
+            .borrow_mut()
             .write(format!("query 0 {}\n", self.config.comment()).as_bytes())
             .whatever_context("Could not send query to server")?;
         println!("Query submitted.  Waiting for the server's response.\n");
@@ -210,7 +214,7 @@ impl<S: ToSocketAddrs> TryFrom<MossConfig<S>> for MossClient<S> {
     type Error = io::Error;
     fn try_from(config: MossConfig<S>) -> Result<Self, Self::Error> {
         Ok(MossClient {
-            server: TcpStream::connect(&config.server_address())?,
+            server: RefCell::new(TcpStream::connect(&config.server_address())?),
             config,
         })
     }
