@@ -89,19 +89,19 @@ jobs:
     needs: [build-linux, build-mac, build-win]
     runs-on: ubuntu-latest
     steps:
-      - name: Download linux package
+      - name: Download all packages
         uses: actions/download-artifact@v3
 
       - name: Display structure of downloaded files
         run: ls -R
 
-      # - name: Release
-      #   uses: "marvinpinto/action-automatic-releases@latest"
-      #   with:
-      #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
-      #     automatic_release_tag: latest
-      #     draft: true
-      #     files: |
-      #       moss_linux/moss_linux.zip
-      #       moss_win/moss_win.zip
-      #       moss_darwin/moss_darwin.zip
+      - name: Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: latest
+          draft: true
+          files: |
+            moss_linux/moss_linux.zip
+            moss_win/moss_win.zip
+            moss_darwin/moss_darwin.zip
