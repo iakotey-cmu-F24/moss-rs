@@ -3,7 +3,7 @@ name: Rust
 on: [push]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,14 +23,12 @@ jobs:
       - name: Package
         run: zip -r -9 moss_linux.zip target/release/moss
 
-      - name: Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: latest
-          draft: true
-          files: |
-            moss_linux.zip
+          name: moss_linux
+          path: moss_linux.zip
+          if-no-files-found: error 
 
   build-win:
     runs-on: windows-latest
@@ -48,18 +46,16 @@ jobs:
 
       - name: Build
         run: cargo build --all --release
-      
+
       - name: Package
         run: Compress-Archive -LiteralPath 'target/release/moss.exe' -DestinationPath 'moss_win.zip'
 
-      - name: Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: latest
-          draft: true
-          files: |
-            moss_win.zip
+          name: moss_win
+          path: moss_win.zip
+          if-no-files-found: error 
 
   build-mac:
     runs-on: macos-latest
@@ -78,15 +74,36 @@ jobs:
 
       - name: Build for mac
         run: cargo build --all --release && strip target/release/moss
-      
+
       - name: Package
         run: zip -r -9 moss_darwin.zip target/release/moss
 
-      - name: Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: latest
-          draft: true
-          files: |
-            moss_darwin.zip
+          name: moss_darwin
+          path: moss_darwin.zip
+          if-no-files-found: error 
+
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download linux package
+        uses: actions/download-artifact@v3
+        with:
+          path: path/to/artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: path/to/artifacts
+
+      # - name: Release
+      #   uses: "marvinpinto/action-automatic-releases@latest"
+      #   with:
+      #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
+      #     automatic_release_tag: latest
+      #     draft: true
+      #     files: |
+      #       moss_linux/moss_linux.zip
+      #       moss_win/moss_win.zip
+      #       moss_darwin/moss_darwin.zip
