@@ -86,6 +86,7 @@ jobs:
           if-no-files-found: error 
 
   release:
+    needs: [build-linux, build-mac, build-win]
     runs-on: ubuntu-latest
     steps:
       - name: Download linux package
