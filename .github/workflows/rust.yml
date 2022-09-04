@@ -3,7 +3,7 @@ name: Rust
 on: [push]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,16 +18,17 @@ jobs:
           override: true
 
       - name: Build
-        run: cargo build --all --release && strip target/release/moss && mv target/release/moss target/release/moss_amd64
+        run: cargo build --all --release && strip target/release/moss
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Package
+        run: zip -r -9 moss_linux.zip target/release/moss
+
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
         with:
-          files: |
-            target/release/moss_amd64
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: moss_linux
+          path: moss_linux.zip
+          if-no-files-found: error 
 
   build-win:
     runs-on: windows-latest
@@ -46,13 +47,15 @@ jobs:
       - name: Build
         run: cargo build --all --release
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Package
+        run: Compress-Archive -LiteralPath 'target/release/moss.exe' -DestinationPath 'moss_win.zip'
+
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
         with:
-          files: target/release/moss.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: moss_win
+          path: moss_win.zip
+          if-no-files-found: error 
 
   build-mac:
     runs-on: macos-latest
@@ -70,13 +73,35 @@ jobs:
           override: true
 
       - name: Build for mac
-        run: cargo build --all --release && strip target/release/moss && mv target/release/moss target/release/moss_darwin
+        run: cargo build --all --release && strip target/release/moss
+
+      - name: Package
+        run: zip -r -9 moss_darwin.zip target/release/moss
+
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: moss_darwin
+          path: moss_darwin.zip
+          if-no-files-found: error 
+
+  release:
+    needs: [build-linux, build-mac, build-win]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all packages
+        uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: latest
+          draft: true
           files: |
-            target/release/moss_darwin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            moss_linux/moss_linux.zip
+            moss_win/moss_win.zip
+            moss_darwin/moss_darwin.zip
