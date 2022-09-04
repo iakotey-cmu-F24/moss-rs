@@ -20,14 +20,16 @@ jobs:
       - name: Build
         run: cargo build --all --release && strip target/release/moss && mv target/release/moss target/release/moss_amd64
 
+      - name: Package
+        run: zip -r -9 moss_linux.zip target/release/moss
+
       - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - uses: "marvinpinto/action-automatic-releases@latest"
         with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          draft: true
           files: |
-            target/release/moss_amd64
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            moss_linux.zip
 
   build-win:
     runs-on: windows-latest
@@ -45,14 +47,17 @@ jobs:
 
       - name: Build
         run: cargo build --all --release
+      
+      - name: Package
+        run: zip -r -9 moss_win.zip target/release/moss.exe
 
       - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          files: target/release/moss.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          draft: true
+          files: |
+            moss_win.zip
 
   build-mac:
     runs-on: macos-latest
@@ -71,12 +76,14 @@ jobs:
 
       - name: Build for mac
         run: cargo build --all --release && strip target/release/moss && mv target/release/moss target/release/moss_darwin
+      
+      - name: Package
+        run: zip -r -9 moss_darwin.zip target/release/moss
 
       - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - uses: "marvinpinto/action-automatic-releases@latest"
         with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          draft: true
           files: |
-            target/release/moss_darwin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            moss_darwin.zip
