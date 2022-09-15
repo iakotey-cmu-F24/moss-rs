@@ -8,7 +8,7 @@ use args::MossCliArgs;
 fn main() {
     let args = MossCliArgs::parse_from(wild::args());
 
-    let moss_config: MossConfig<(&str, u16)> = args.into();
+    let moss_config: MossConfig<(&str, u16)> = args.try_into().unwrap();
 
     let moss_client: MossClient<(&str, u16)> = moss_config.try_into().unwrap();
 

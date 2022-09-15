@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use clap::{AppSettings, ArgAction, Parser};
 use libmoss::prelude::*;
+use snafu::{prelude::*, Whatever};
 
 #[derive(Debug, Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -34,8 +35,8 @@ pub(crate) struct MossCliArgs {
 
     /// Page 'title'
     #[clap(long, value_parser)]
-    user_id: String,
-    
+    user_id: Option<String>,
+
     ///
     #[clap(short, long, value_parser)]
     transform: Option<String>,
@@ -59,11 +60,16 @@ pub(crate) struct MossCliArgs {
     submission_files: Vec<PathBuf>,
 }
 
-impl<'s> Into<MossConfig<(&'s str, u16)>> for MossCliArgs {
-    fn into(self) -> MossConfig<(&'s str, u16)> {
+impl<'s> TryInto<MossConfig<(&'s str, u16)>> for MossCliArgs {
+    type Error = Whatever;
+    fn try_into(self) -> Result<MossConfig<(&'s str, u16)>, Whatever> {
         let server_str: &'static str = Box::leak(Box::new(self.server));
-        let mut cfg: MossConfig<(&'s str, u16)> =
-            MossConfig::new(self.user_id, (server_str, self.port));
+        let mut cfg: MossConfig<(&'s str, u16)> = MossConfig::new(
+            self.user_id
+                .or_else(|| std::env::var("MOSS_ID").ok())
+                .whatever_context("User ID unspecified")?,
+            (server_str, self.port),
+        );
 
         cfg.set_use_experimental_mode(self.use_experimental_mode)
             .set_max_matches_displayed(self.max_matches_displayed)
@@ -77,27 +83,29 @@ impl<'s> Into<MossConfig<(&'s str, u16)>> for MossCliArgs {
         if let Some(files) = self.base_files {
             files.into_iter().for_each(|file| {
                 if file.exists() {
-                    cfg.add_base_path(file).expect("Error occured on infallible operation!");
+                    cfg.add_base_path(file)
+                        .expect("Error occured on infallible operation!");
                 } else {
                     match cfg.add_base_file(&file.to_string_lossy()) {
                         Ok(()) => (),
-                        _ => todo!()
+                        _ => todo!(),
                     }
                 }
             });
         }
-        
+
         self.submission_files.into_iter().for_each(|file| {
             if file.exists() {
-                cfg.add_path(file).expect("Error occured on infallible operation!");
+                cfg.add_path(file)
+                    .expect("Error occured on infallible operation!");
             } else {
                 match cfg.add_file(&file.to_string_lossy()) {
                     Ok(()) => (),
-                    _ => todo!()
+                    _ => todo!(),
                 }
             }
         });
 
-        cfg
+        Ok(cfg)
     }
 }
