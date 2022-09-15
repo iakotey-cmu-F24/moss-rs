@@ -1,4 +1,3 @@
-
 use clap::Parser;
 use libmoss::prelude::*;
 
@@ -8,11 +7,27 @@ use args::MossCliArgs;
 fn main() {
     let args = MossCliArgs::parse_from(wild::args());
 
-    let moss_config: MossConfig<(&str, u16)> = args.try_into().unwrap();
+    let moss_config: MossConfig<(&str, u16)> = match args.try_into() {
+        Ok(config) => config,
+        Err(err) => {
+            println!("{err}");
+            std::process::exit(1)
+        }
+    };
 
-    let moss_client: MossClient<(&str, u16)> = moss_config.try_into().unwrap();
+    let moss_client: MossClient<(&str, u16)> = match moss_config.try_into() {
+        Ok(client) => client,
+        Err(err) => {
+            println!("{err}");
+            std::process::exit(1)
+        }
+    };
 
-    let moss_response = moss_client.send().unwrap();
-
-    println!("{}", moss_response);
+    match moss_client.send() {
+        Ok(response) => println!("{}", response),
+        Err(err) => {
+            println!("{err}");
+            std::process::exit(1)
+        }
+    };
 }

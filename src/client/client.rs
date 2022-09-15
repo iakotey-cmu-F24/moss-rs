@@ -88,7 +88,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
                                 .flatten()
                                 .map(|c| c.as_str())
                                 // TODO replace with intersperse when it's stablized
-                                .fold(String::new(), |mut acc, cur| {
+                                .fold(String::from('/'), |mut acc, cur| {
                                     acc.push_str(cur);
                                     acc.push('/');
                                     acc
