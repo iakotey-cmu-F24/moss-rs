@@ -38,7 +38,7 @@ cd MOSS-RS # folder name might not be uppercase
 cargo build --release
 ```
 
-4. The binary will be found at ***Project*/target/release/moss.exe**, where project is the project directory. It is recommended to copy/move the binary to a location of your choice an add that location to your system's PATH variable. See [this article](https://tadtadya.com/en/how-to-set-environment-variable-path/) for help if needed.
+4. The binary will be found at ***project*/target/release/moss[.exe]**, where ***project*** is the project directory. It is recommended to copy/move the binary to a location of your choice and add that location to your system's PATH variable. See [this article](https://tadtadya.com/en/how-to-set-environment-variable-path/) for help if needed.
 
 ## Usage
 
