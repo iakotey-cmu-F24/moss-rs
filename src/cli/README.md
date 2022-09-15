@@ -16,7 +16,7 @@ Moss takes two required parameters, some optional flags/options, and the list of
 The compulsory arguments are:
 
 * **--comment**: The comment argument takes a string, as the title of the current submission. It can be shortened as  -c.
-* **--user-id**: The user id option takes a string, is used to authenticate with Moss servers. It can be omitted as long as an environment variable named***MOSS_ID*** with the user id is it's value.
+* **--user-id**: The user id option takes a string, is used to authenticate with Moss servers. It can be omitted as long as an environment variable named ***MOSS_ID*** with the user id is it's value.
 
 Other options are listed below.
 
