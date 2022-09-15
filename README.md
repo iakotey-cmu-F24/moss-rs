@@ -8,9 +8,10 @@ Moss is a code similarity analysis tool developed by Alex Aiken, Daniel S. Wilke
 
 Moss is provided as an internet service. This project is just an implementation of the reference client, found [here](http://moss.stanford.edu/general/scripts/mossnet).
 
-## Installation
+## Installation (**Binary**)
 
-The current implementation is not yet on [crates.io](https://crates.io) or as binary executables, so manual building is required.
+Installation instructions for moss can be found [here](src/cli/Installation.md)
+## Build from source
 
 ### Prerequisites
 
@@ -44,11 +45,7 @@ cargo build --release
 
 ### **Binary**
 
-Most users will be interested in the binary executable. Usage instructions will be provided in more detail. Below is a summary of the moss CLI.
-
-```bash
-moss [OPTIONS] --comment <COMMENT> --user-id <USER_ID> [FILES]...
-```
+Most users will be interested in the binary executable. Usage instructions can be found [here](src/cli/README.md)
 
 ### **Library**
 
