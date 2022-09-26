@@ -85,53 +85,53 @@ jobs:
           path: moss_darwin.zip
           if-no-files-found: error 
 
-  get_project_version:
-    if: github.repository == 'ianakotey/moss-rs'
-    runs-on: ubuntu-latest
+#   get_project_version:
+#     if: github.repository == 'ianakotey/moss-rs'
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v1
 
-      - name: Install latest rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          default: true
-          override: true
+#       - name: Install latest rust toolchain
+#         uses: actions-rs/toolchain@v1
+#         with:
+#           toolchain: stable
+#           default: true
+#           override: true
 
-      - name: Extract cargo version
-        run: sed -n '/^version/s/version\s*=\s*//p'  Cargo.toml | sed 's/"//g'` > version.txt
+#       - name: Extract cargo version
+#         run: sed -n '/^version/s/version\s*=\s*//p'  Cargo.toml | sed 's/"//g'` > version.txt
 
-      - name: Upload version information
-        uses: actions/upload-artifact@v3
-        with:
-          name: version
-          path: version.txt
-          if-no-files-found: error
+#       - name: Upload version information
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: version
+#           path: version.txt
+#           if-no-files-found: error
 
 
-  release:
-    if: github.repository == 'ianakotey/moss-rs'
-    needs: [build-linux, build-mac, build-win, get_project_version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download all packages
-        uses: actions/download-artifact@v3
+#   release:
+#     if: github.repository == 'ianakotey/moss-rs'
+#     needs: [build-linux, build-mac, build-win, get_project_version]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download all packages
+#         uses: actions/download-artifact@v3
 
-      - name: Display structure of downloaded files
-        run: ls -R
+#       - name: Display structure of downloaded files
+#         run: ls -R
 
-      - name: Get version of cargo project
-        run: export CARGO_VERSION=`cat version/version.txt` 
+#       - name: Get version of cargo project
+#         run: export CARGO_VERSION=`cat version/version.txt` 
 
-      - name: Release
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: ${{ CARGO_VERSION }}
-          draft: true
-          files: |
-            moss_linux/moss_linux.zip
-            moss_win/moss_win.zip
-            moss_darwin/moss_darwin.zip
+#       - name: Release
+#         uses: "marvinpinto/action-automatic-releases@latest"
+#         with:
+#           repo_token: "${{ secrets.GITHUB_TOKEN }}"
+#           automatic_release_tag: ${{ CARGO_VERSION }}
+#           draft: true
+#           files: |
+#             moss_linux/moss_linux.zip
+#             moss_win/moss_win.zip
+#             moss_darwin/moss_darwin.zip
