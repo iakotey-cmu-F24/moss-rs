@@ -112,7 +112,7 @@ jobs:
 
 
   release:
-    if: github.repository == 'ianakotey/moss-rs'
+#     if: github.repository == 'ianakotey/moss-rs'
     needs: [build-linux, build-mac, build-win, get_project_version]
     runs-on: ubuntu-latest
     steps:
@@ -129,7 +129,8 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: ${{ CARGO_VERSION }}
+#           automatic_release_tag: ${{ CARGO_VERSION }}
+          automatic_release_tag: latest
           draft: true
           files: |
             moss_linux/moss_linux.zip
