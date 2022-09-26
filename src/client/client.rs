@@ -229,7 +229,7 @@ impl TcpStream {
         let mut byte_array = [32; 512];
 
         match self.read(&mut byte_array) {
-            Ok(_bytes_read) => Ok(String::from_utf8_lossy(&byte_array).to_string()),
+            Ok(_bytes_read) => Ok(String::from_utf8_lossy(&byte_array).trim().to_string()),
             Err(err) if err.kind() == io::ErrorKind::Interrupted => Ok(String::new()),
             Err(err) => Err(err),
         }
