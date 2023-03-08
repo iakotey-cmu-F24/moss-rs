@@ -28,7 +28,7 @@ jobs:
         with:
           name: moss_linux
           path: moss_linux.zip
-          if-no-files-found: error 
+          if-no-files-found: error
 
   build-win:
     runs-on: windows-latest
@@ -55,7 +55,7 @@ jobs:
         with:
           name: moss_win
           path: moss_win.zip
-          if-no-files-found: error 
+          if-no-files-found: error
 
   build-mac:
     runs-on: macos-latest
@@ -83,7 +83,7 @@ jobs:
         with:
           name: moss_darwin
           path: moss_darwin.zip
-          if-no-files-found: error 
+          if-no-files-found: error
 
   get_project_version:
     if: github.repository == 'ianakotey/moss-rs'
@@ -110,9 +110,8 @@ jobs:
           path: version.txt
           if-no-files-found: error
 
-
   release:
-#     if: github.repository == 'ianakotey/moss-rs'
+    #     if: github.repository == 'ianakotey/moss-rs'
     needs: [build-linux, build-mac, build-win, get_project_version]
     runs-on: ubuntu-latest
     steps:
@@ -123,7 +122,12 @@ jobs:
         run: ls -R
 
       - name: Get version of cargo project
-        run: export CARGO_VERSION=`cat version/version.txt` 
+        run: export CARGO_VERSION=`cat version/version.txt`
+
+      - name: Get version of cargo project
+        run: |
+          CARGO_VERSION=`cat version/version.txt`
+          echo "CARGO_VERSION=$CARGO_VERSION" >> $GITHUB_ENV
 
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
