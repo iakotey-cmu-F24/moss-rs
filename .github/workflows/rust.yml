@@ -101,11 +101,14 @@ jobs:
           override: true
 
       - name: Extract cargo version
-        run: |
-          CARGO_VERSION=$(sed -n '/^version/s/version\s*=\s*//p'  Cargo.toml | sed 's/"//g')
-          echo "CARGO_VERSION=$CARGO_VERSION" >> $GITHUB_ENV
+        run: sed -n '/^version/s/version\s*=\s*//p'  Cargo.toml | sed 's/"//g' > version.txt
 
-
+      - name: Upload version information
+        uses: actions/upload-artifact@v3
+        with:
+          name: version
+          path: version.txt
+          if-no-files-found: error
 
   release:
     if: github.repository == 'ianakotey/moss-rs'
@@ -117,6 +120,11 @@ jobs:
 
       - name: Display structure of downloaded files
         run: ls -R
+
+      - name: Get version of cargo project
+        run: |
+          CARGO_VERSION=`cat version/version.txt`
+          echo "CARGO_VERSION=$CARGO_VERSION" >> $GITHUB_ENV
 
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
