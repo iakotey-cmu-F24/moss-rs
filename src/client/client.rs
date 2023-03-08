@@ -87,12 +87,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
                                 .skip(1)
                                 .flatten()
                                 .map(|c| c.as_str())
-                                // TODO replace with intersperse when it's stablized
-                                .fold(String::from('/'), |mut acc, cur| {
-                                    acc.push_str(cur);
-                                    acc.push('/');
-                                    acc
-                                }),
+                                .intersperse("/").collect::<String>()
                         )
                     } else {
                         file_path

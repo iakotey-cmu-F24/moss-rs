@@ -1,3 +1,6 @@
+#![feature(iter_intersperse)]
+
+
 pub mod client;
 
 pub mod prelude {
