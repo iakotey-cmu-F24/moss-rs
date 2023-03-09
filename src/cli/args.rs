@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fmt::format, path::PathBuf};
 
 use clap::{AppSettings, ArgAction, Parser};
 use libmoss::prelude::*;
@@ -66,7 +66,7 @@ impl<'s> TryInto<MossConfig<(&'s str, u16)>> for MossCliArgs {
         let server_str: &'static str = Box::leak(Box::new(self.server));
         let mut cfg: MossConfig<(&'s str, u16)> = MossConfig::new(
             self.user_id
-                .or_else(|| std::env::var("MOSS_ID").ok())
+                .or(std::env::var("MOSS_ID").ok())
                 .whatever_context("User ID unspecified")?,
             (server_str, self.port),
         );
@@ -80,19 +80,23 @@ impl<'s> TryInto<MossConfig<(&'s str, u16)>> for MossCliArgs {
             .set_use_directory_mode(self.use_directory_mode)
             .set_transform(self.transform);
 
+        // dbg!(format!("Base files from cmd: {:?}", self.base_files));
+
         if let Some(files) = self.base_files {
             files.into_iter().for_each(|file| {
                 if file.exists() {
                     cfg.add_base_path(file)
                         .expect("Error occured on infallible operation!");
                 } else {
-                    match cfg.add_base_file(&file.to_string_lossy()) {
+                    match cfg.add_base_file(&file.to_string_lossy().trim()) {
                         Ok(()) => (),
                         _ => todo!(),
                     }
                 }
             });
         }
+
+        // dbg!(format!("Base files in cfg: {:?}", cfg.base_files().collect::<Vec<_>>()));
 
         self.submission_files.into_iter().for_each(|file| {
             if file.exists() {

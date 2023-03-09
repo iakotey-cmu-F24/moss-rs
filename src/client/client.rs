@@ -87,7 +87,8 @@ impl<S: ToSocketAddrs> MossClient<S> {
                                 .skip(1)
                                 .flatten()
                                 .map(|c| c.as_str())
-                                .intersperse("/").collect::<String>()
+                                .intersperse("/")
+                                .collect::<String>(),
                         )
                     } else {
                         file_path
@@ -181,6 +182,7 @@ impl<S: ToSocketAddrs> MossClient<S> {
     }
 
     fn _upload_base_files(&self) -> Result<(), Whatever> {
+        // dbg!(format!("Uploading the following base files: {:?}", self.config.base_files().collect::<Vec<_>>()));
         for file in self.config.base_files() {
             self._send_file(file, 0)?;
         }
