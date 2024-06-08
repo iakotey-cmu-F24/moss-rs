@@ -1,12 +1,11 @@
-use std::{fmt::format, path::PathBuf};
+use std::path::PathBuf;
 
-use clap::{AppSettings, ArgAction, Parser};
+use clap::{ArgAction, Parser};
 use libmoss::prelude::*;
 use snafu::{prelude::*, Whatever};
 
 #[derive(Debug, Parser)]
-#[clap(author, version, about, long_about = None)]
-#[clap(global_setting(AppSettings::DeriveDisplayOrder))]
+#[command(author, version, about, long_about = None)]
 pub(crate) struct MossCliArgs {
     /// language of submitted files
     #[clap(short = 'l', long, value_parser, default_value_t = MossLanguage::C)]
